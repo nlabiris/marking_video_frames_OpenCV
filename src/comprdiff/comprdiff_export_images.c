@@ -191,8 +191,8 @@ int main(int argc, char **argv) {
 	printf("\n\nTotal time writing frames : %f minutes\t%f seconds\n", (((float)diff)/CLOCKS_PER_SEC)/60, ((float)diff)/CLOCKS_PER_SEC);
 	printf("Writing completed!\n\n");
 
-	free(list_of_frames);
-	free(check_frames);
+	free(list_of_frames);		// Free list_of_frames
+	free(check_frames);			// Free check_frames
 	cvReleaseImage(&bgr_frame);	// Release bgr_frame
 	cvReleaseImage(&new_frame);	// Release new_frame
 	cvReleaseCapture(&capture);	// Release capture
