@@ -122,7 +122,7 @@ void comprdiff(IplImage *decoded_previous, IplImage *decoded_current, int frame,
 	cvReleaseMat(&encoded_current);
 }
 
-void ecr_calculation(IplImage *current, IplImage *previous, CvSize size, int frame, double *ecr_call, double *ecr_max_call)
+void ecrdiff_v1(IplImage *current, IplImage *previous, CvSize size, int frame, double *ecr_call, double *ecr_max_call)
 {
 	int i,j,k,l;
 	double t_current=0.0,tx_current=0.0,ty_current=0.0;						// Sum variables (Sobel)
@@ -385,7 +385,7 @@ void mark_frames(int frame, FILE *fp, int *index_call, double *ecr_call, double 
 	}
 }
 
-void ecrdiff(IplImage *current, IplImage *previous, CvSize size, int frame, FILE *fp, int *index_call)
+void ecrdiff_v2(IplImage *current, IplImage *previous, CvSize size, int frame, FILE *fp, int *index_call)
 {
 	int i,j,k,l;
 	double t=0.0,tx=0.0,ty=0.0;						// Sum variables (Sobel)
