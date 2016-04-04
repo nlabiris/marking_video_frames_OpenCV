@@ -4,7 +4,7 @@
 
 In this work, we constructed various algorithms in order to extract frames from videos using [OpenCV Computer Vision library](http://opencv.org/). The results are saved as a text file as well as a video file that consists of the extracted frames only.
 
-Here you can download the [script]() for the thesis (It is written in the Greek language only)
+Here you can download the [text](https://github.com/nlabiris/marking_video_frames_OpenCV/blob/master/Labiris_Nikolaos_2744_Ptixiaki.pdf) for the thesis. (It is written in the Greek language only)
 
 #### License
 
