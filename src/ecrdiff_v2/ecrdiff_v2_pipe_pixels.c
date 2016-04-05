@@ -128,9 +128,6 @@ int main(int argc, char **argv) {
 	}
 
 	fprintf(fp,"\n\nTotal marked frames\t:\t%d\n",marked_frames);
-
-	cvReleaseImage(&bgr_frame);			// Release bgr_frame
-	cvReleaseCapture(&capture);	// Release capture
 	
 	//If there is no markeed frames, exit
 	if(marked_frames == 0) {

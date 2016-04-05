@@ -146,7 +146,8 @@ int main(int argc, char **argv) {
 
 	fprintf(fp,"\n\nTotal marked frames\t:\t%d\n",marked_frames);
 
-	cvReleaseImage(&bgr_frame);			// Release bgr_frame
+	fclose(fp);					// Close file pointer
+	cvReleaseImage(&bgr_frame);	// Release bgr_frame
 	cvReleaseCapture(&capture);	// Release capture
 	
 	//If there is no markeed frames, exit
@@ -188,7 +189,6 @@ int main(int argc, char **argv) {
 	fprintf(fp,"\n\nTotal time writing frames : %f minutes\t%f seconds\n", (((float)diff)/CLOCKS_PER_SEC)/60, ((float)diff)/CLOCKS_PER_SEC);
 	fprintf(fp,"Writing completed!\n\n");
 
-	fclose(fp);					// Close file pointer
 	free(list_of_frames);		// Free list_of_frames
 	free(check_frames);			// Free check_frames
 	free(ecr);					// Free ecr

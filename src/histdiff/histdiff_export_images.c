@@ -12,6 +12,9 @@
 #include "video_algorithms.h"
 
 int main(int argc, char **argv) {
+	int p[3];
+	char buffer[20];
+	int ci=1;							// Counter
 	int i,index=0;
 	int width_img=0;	// Frame width
 	int height_img=0;	// Frame height
@@ -21,7 +24,6 @@ int main(int argc, char **argv) {
 	int marked_frames=0;	// Marked frame
 	int *check_frames;			// Contains indeces of marked frames
 	int *list_of_frames;		// List of frames
-	double *ecr;
 	IplImage *previous_frame;	// Previous frame
 	IplImage *current_frame;	// Current frame
 	IplImage *bgr_frame;	// Frame
@@ -61,15 +63,13 @@ int main(int argc, char **argv) {
 
 	check_frames = (int *)malloc(sizeof(*check_frames) * total_frames);
 	list_of_frames = (int *)malloc(sizeof(*list_of_frames) * total_frames);
-	ecr = (double *)malloc(sizeof(*ecr) * total_frames);
-	if (check_frames == NULL || list_of_frames == NULL || ecr == NULL) {
+	if (check_frames == NULL || list_of_frames == NULL) {
 		printf("Error allocating memory!\n");
 		return EXIT_FAILURE;
 	}
 
 	// Initialize arrays
 	for(i=0;i<total_frames;i++) {
-		ecr[i]=0.0;
 		check_frames[i]=0;
 		list_of_frames[i]=0;
 	}
@@ -93,10 +93,11 @@ int main(int argc, char **argv) {
 		frame = cvGetCaptureProperty(capture,CV_CAP_PROP_POS_FRAMES);					// Get the current frame number
 		
 		current_frame = cvCreateImage(size, bgr_frame->depth, bgr_frame->nChannels);	// Create the current frame
+		new_frame = cvCreateImage(size, bgr_frame->depth, bgr_frame->nChannels);	// Create the new frame
 		cvCopy(bgr_frame,current_frame,NULL);											// Save the copy
 		
 		/**** START PROCESSING ****/
-		ecrdiff_v2(current_frame, previous_frame, size, frame, fp, &index);
+		histdiff(previous_frame, current_frame, new_frame, frame, fp, width_img, height_img, &index);	// Calculate histogram differences and mark frames according to the threshold
 		/**** END PROCESSING ****/
 
 		cvReleaseImage(&previous_frame);		// Release previous frame
@@ -104,6 +105,7 @@ int main(int argc, char **argv) {
 		cvCopy(bgr_frame,previous_frame,NULL);	// Save the copy
 
 		cvReleaseImage(&current_frame);			// Release current_frame
+		cvReleaseImage(&new_frame);				// Release new frame
 		
 		if(index==1) {
 			check_frames[frame]=1;	// It means that the specific frame is marked
@@ -144,15 +146,17 @@ int main(int argc, char **argv) {
 	
 	
 	
-	/**** STAGE 2: WRITE VIDEO ****/
+	/**** STAGE 2: EXPORT IMAGES ****/
 	
 	capture = cvCreateFileCapture(argv[1]);	// Re-Open video file to start capture
 	if(!capture) {
 		printf("Error opening video file! (cvCreateFileCapture)\n");
 		return EXIT_FAILURE;
 	}
-	
-	CvVideoWriter *writer = cvCreateVideoWriter(argv[2],CV_FOURCC('X','2','6','5'),fps,size,1);
+
+	p[0] = CV_IMWRITE_PNG_COMPRESSION;
+	p[1] = 0;
+	p[2] = 0;
 	
 	printf("Start writing frames...\n\n");
 	
@@ -167,9 +171,15 @@ int main(int argc, char **argv) {
 		// If the index number of the current frame is equal to the frame we want, then write it to the stream.
 		if(frame == list_of_frames[frame]) {
 			cvCopy(bgr_frame,new_frame,NULL);	// Save the copy
-			cvWriteFrame(writer, new_frame);	// Write frame to video stream
+			sprintf(buffer,"%06d",ci);			// number of digits in the image name
+			strcat(buffer,".png");				// Add at the end of the image the file extension
+			cvSaveImage(buffer,new_frame,p);	// Save current frame
+			ci++;
 		} else {
-			cvWriteFrame(writer, new_frame);	// Write frame to video stream
+			sprintf(buffer,"%06d",ci);			// number of digits in the image name
+			strcat(buffer,".png");				// Add at the end of the image the file extension
+			cvSaveImage(buffer,new_frame,p);	// Save current frame
+			ci++;
 		}
 		
 		printf("Writing frame %d...\r",frame);
@@ -184,7 +194,6 @@ int main(int argc, char **argv) {
 	fclose(fp);					// Close file pointer
 	free(list_of_frames);		// Free list_of_frames
 	free(check_frames);			// Free check_frames
-	free(ecr);					// Free ecr
 	cvReleaseImage(&bgr_frame);	// Release bgr_frame
 	cvReleaseImage(&new_frame);	// Release new_frame
 	cvReleaseCapture(&capture);	// Release capture

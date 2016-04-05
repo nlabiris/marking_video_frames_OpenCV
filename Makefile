@@ -20,26 +20,52 @@
 .PHONY: all clean absdiff comprdiff ecrdiff_v1 ecrdiff_v2
 
 all:
+	@echo "\033[1;32mStarting compilation...\033[0m"
+	@echo ""
+	@echo "\033[1;32mCompiling absdiff...\033[0m"
 	$(MAKE) -f Makefile_absdiff
+	@echo "\033[1;32mCompiling comprdiff...\033[0m"
 	$(MAKE) -f Makefile_comprdiff
+	@echo "\033[1;32mCompiling ecrdiff_v1...\033[0m"
 	$(MAKE) -f Makefile_ecrdiff_v1
+	@echo "\033[1;32mCompiling ecrdiff_v2...\033[0m"
 	$(MAKE) -f Makefile_ecrdiff_v2
+	@echo "\033[1;32mCompiling histdiff...\033[0m"
+	$(MAKE) -f Makefile_histdiff
+	@echo ""
+	@echo "\033[1;32mDone.\033[0m"
 
 absdiff:
+	@echo "\033[1;32mCompiling absdiff...\033[0m"
 	$(MAKE) -f Makefile_absdiff
+	@echo "\033[1;32mDone.\033[0m"
 
 comprdiff:
+	@echo "\033[1;32mCompiling comprdiff...\033[0m"
 	$(MAKE) -f Makefile_comprdiff
+	@echo "\033[1;32mDone.\033[0m"
 
 ecrdiff_v1:
+	@echo "\033[1;32mCompiling ecrdiff_v1...\033[0m"
 	$(MAKE) -f Makefile_ecrdiff_v1
+	@echo "\033[1;32mDone.\033[0m"
 
 ecrdiff_v2:
+	@echo "\033[1;32mCompiling ecrdiff_v2...\033[0m"
 	$(MAKE) -f Makefile_ecrdiff_v2
+	@echo "\033[1;32mDone.\033[0m"
+	
+histdiff:
+	@echo "\033[1;32mCompiling histdiff...\033[0m"
+	$(MAKE) -f Makefile_histdiff
+	@echo "\033[1;32mDone.\033[0m"
 	
 clean:
+	@echo "\033[1;32mDeleting object files...\033[0m"
 	rm -f src/*.o
 	rm -f src/absdiff/*.o
 	rm -f src/comprdiff/*.o
 	rm -f src/ecrdiff_v1/*.o
 	rm -f src/ecrdiff_v2/*.o
+	rm -f src/histdiff/*.o
+	@echo "\033[1;32mDone.\033[0m"

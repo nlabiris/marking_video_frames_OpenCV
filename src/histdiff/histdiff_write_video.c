@@ -21,7 +21,6 @@ int main(int argc, char **argv) {
 	int marked_frames=0;	// Marked frame
 	int *check_frames;			// Contains indeces of marked frames
 	int *list_of_frames;		// List of frames
-	double *ecr;
 	IplImage *previous_frame;	// Previous frame
 	IplImage *current_frame;	// Current frame
 	IplImage *bgr_frame;	// Frame
@@ -61,15 +60,13 @@ int main(int argc, char **argv) {
 
 	check_frames = (int *)malloc(sizeof(*check_frames) * total_frames);
 	list_of_frames = (int *)malloc(sizeof(*list_of_frames) * total_frames);
-	ecr = (double *)malloc(sizeof(*ecr) * total_frames);
-	if (check_frames == NULL || list_of_frames == NULL || ecr == NULL) {
+	if (check_frames == NULL || list_of_frames == NULL) {
 		printf("Error allocating memory!\n");
 		return EXIT_FAILURE;
 	}
 
 	// Initialize arrays
 	for(i=0;i<total_frames;i++) {
-		ecr[i]=0.0;
 		check_frames[i]=0;
 		list_of_frames[i]=0;
 	}
@@ -96,7 +93,7 @@ int main(int argc, char **argv) {
 		cvCopy(bgr_frame,current_frame,NULL);											// Save the copy
 		
 		/**** START PROCESSING ****/
-		ecrdiff_v2(current_frame, previous_frame, size, frame, fp, &index);
+		histdiff(previous_frame, current_frame, new_frame, frame, fp, width_img, height_img, &index);	// Calculate histogram differences and mark frames according to the threshold
 		/**** END PROCESSING ****/
 
 		cvReleaseImage(&previous_frame);		// Release previous frame
@@ -184,7 +181,6 @@ int main(int argc, char **argv) {
 	fclose(fp);					// Close file pointer
 	free(list_of_frames);		// Free list_of_frames
 	free(check_frames);			// Free check_frames
-	free(ecr);					// Free ecr
 	cvReleaseImage(&bgr_frame);	// Release bgr_frame
 	cvReleaseImage(&new_frame);	// Release new_frame
 	cvReleaseCapture(&capture);	// Release capture
