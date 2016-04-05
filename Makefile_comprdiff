@@ -1,0 +1,42 @@
+# This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+# (http://creativecommons.org/licenses/by-nc-sa/4.0/)
+#
+# ------------------------------------------------------------------------
+#
+# This Makefile compiles the source code for the 'comprdiff' algorithm only
+# The Makefile_comprdiff is called from a generic makefile so you may not use this makefile directly
+
+CFLAGS=`pkg-config --cflags opencv` -Wall -I include
+LIBS=`pkg-config --libs opencv`
+COMPRDIFF_EXPORT_IMAGES_TARGET=bin/comprdiff/comprdiff_export_images
+COMPRDIFF_PIPE_PIXELS_TARGET=bin/comprdiff/comprdiff_pipe_pixels
+COMPRDIFF_WRITE_VIDEO_TARGET=bin/comprdiff/comprdiff_write_video
+.PHONY: all clean
+
+# Make executables for all targets
+all: $(COMPRDIFF_EXPORT_IMAGES_TARGET) $(COMPRDIFF_PIPE_PIXELS_TARGET) $(COMPRDIFF_WRITE_VIDEO_TARGET)
+
+# Compression differences algorithm
+$(COMPRDIFF_EXPORT_IMAGES_TARGET): src/comprdiff/comprdiff_export_images.o src/video_algorithms.o
+	$(CC) $(CFLAGS) $(LIBS) $^ -o $@
+comprdiff_export_images.o: src/comprdiff/comprdiff_export_images.c src/video_algorithms.c include/video_algorithms.h
+	$(CC) $(CFLAGS) $(LIBS) -c $<
+	
+$(COMPRDIFF_PIPE_PIXELS_TARGET): src/comprdiff/comprdiff_pipe_pixels.o src/video_algorithms.o
+	$(CC) $(CFLAGS) $(LIBS) $^ -o $@
+comprdiff_pipe_pixels.o: src/comprdiff/comprdiff_pipe_pixels.c src/video_algorithms.c include/video_algorithms.h
+	$(CC) $(CFLAGS) $(LIBS) -c $<
+
+$(COMPRDIFF_WRITE_VIDEO_TARGET): src/comprdiff/comprdiff_write_video.o src/video_algorithms.o
+	$(CC) $(CFLAGS) $(LIBS) $^ -o $@
+comprdiff_write_video.o: src/comprdiff/comprdiff_write_video.c src/video_algorithms.c include/video_algorithms.h
+	$(CC) $(CFLAGS) $(LIBS) -c $<
+
+# Video algorithms
+video_algorithms.o: src/video_algorithms.c include/video_algorithms.h
+	$(CC) $(CFLAGS) $(LIBS) -c $<
+
+# Clean object files
+clean:
+	rm src/*.o
+	rm src/comprdiff/*.o

@@ -1,5 +1,6 @@
 // argv[1]: input video file
-// argv[2]: output TXT file
+// argv[2]: output video file
+// argv[3]: output TXT file
 
 
 #include <stdio.h>
@@ -11,7 +12,6 @@
 #include "video_algorithms.h"
 
 int main(int argc, char **argv) {
-	double ecr_max=0.0;
 	int i,index=0;
 	int width_img=0;	// Frame width
 	int height_img=0;	// Frame height
@@ -32,8 +32,8 @@ int main(int argc, char **argv) {
 	clock_t start, stop, diff; // Timer
 		
 	// Check if the user gave arguments
-	if(argc != 3) {
-		fprintf(stderr, "\nUSAGE: %s <input_video_file> <output_TXT_file>\n", argv[0]);
+	if(argc != 4) {
+		fprintf(stderr, "\nUSAGE: %s <input_video_file> <output_video_file> <output_TXT_file>\n", argv[0]);
 		return EXIT_FAILURE;
 	}
 
@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
 		return EXIT_FAILURE;
 	}
 
-	fp=fopen(argv[2],"w");		// Open file to write stats
+	fp=fopen(argv[3],"w");		// Open file to write stats
 	if(fp == NULL) {
 		printf("Error opening file! (fopen)\n");
 		return EXIT_FAILURE;
@@ -75,7 +75,9 @@ int main(int argc, char **argv) {
 	}
 	
 	fprintf(fp,"Filename\t:\t%s\n\nFrame width\t:\t%d\nFrame height\t:\t%d\nFPS\t\t:\t%f\nTotal frames\t:\t%d\n\n\n\n",argv[1],width_img,height_img,fps,total_frames);
-	fprintf(fp,"Start processing frames...\n\n");
+	printf("Filename\t:\t%s\n\nFrame width\t:\t%d\nFrame height\t:\t%d\nFPS\t\t:\t%f\nTotal frames\t:\t%d\n\n\n\n",argv[1],width_img,height_img,fps,total_frames);
+	
+	printf("Start processing frames...\n\n");
 	
 	start = clock(); // Start timer
 	
@@ -94,7 +96,7 @@ int main(int argc, char **argv) {
 		cvCopy(bgr_frame,current_frame,NULL);											// Save the copy
 		
 		/**** START PROCESSING ****/
-		ecrdiff_v1(current_frame, previous_frame, size, frame, ecr, &ecr_max);
+		ecrdiff_v2(current_frame, previous_frame, size, frame, fp, &index);
 		/**** END PROCESSING ****/
 
 		cvReleaseImage(&previous_frame);		// Release previous frame
@@ -106,34 +108,22 @@ int main(int argc, char **argv) {
 		if(index==1) {
 			check_frames[frame]=1;	// It means that the specific frame is marked
 		}
+		
+		printf("Processing frame %d...\r",frame);
+		fflush(stdout);
 	}
 	
 	stop = clock();			// Stop timer
 	diff = stop - start;	// Get difference between start time and current time;
-	fprintf(fp,"\n\nTotal time processing frames : %f minutes\t%f seconds\n", (((float)diff)/CLOCKS_PER_SEC)/60, ((float)diff)/CLOCKS_PER_SEC);
-	fprintf(fp,"Processing completed!\n");
+	printf("\n\nTotal time processing frames : %f minutes\t%f seconds\n", (((float)diff)/CLOCKS_PER_SEC)/60, ((float)diff)/CLOCKS_PER_SEC);
+	printf("Processing completed!\n");
 	
 	cvReleaseImage(&bgr_frame);			// Release bgr_frame
 	cvReleaseImage(&previous_frame);	// Release previous_frame
 	cvReleaseCapture(&capture);			// Release capture
 
-	capture = cvCreateFileCapture(argv[1]);		// Re-Open video file to start capture
-	if(!capture) {
-		printf("Error opening video file! (cvCreateFileCapture)\n");
-		return EXIT_FAILURE;
-	}
-
-	do {
-		frame = cvGetCaptureProperty(capture,CV_CAP_PROP_POS_FRAMES);	// Get the current frame number
-		mark_frames(frame, fp, &index, ecr, &ecr_max);
-
-		// It means that the specific frame is marked
-		if(index==1) {
-			check_frames[frame]=1;
-		}
-	} while((bgr_frame=cvQueryFrame(capture)) != NULL);
-
 	fprintf(fp,"\n\n\n\nMarked frames\n\n");
+	printf("\n\n\n\nMarked frames\n\n");
 
 	for(i=0;i<total_frames;i++)	{
 		if(check_frames[i]==1) {
@@ -145,9 +135,9 @@ int main(int argc, char **argv) {
 	}
 
 	fprintf(fp,"\n\nTotal marked frames\t:\t%d\n",marked_frames);
+	printf("\n\nTotal marked frames\t:\t%d\n\n",marked_frames);
 
-	cvReleaseImage(&bgr_frame);			// Release bgr_frame
-	cvReleaseCapture(&capture);	// Release capture
+	fclose(fp);	// Close file pointer
 	
 	//If there is no markeed frames, exit
 	if(marked_frames == 0) {
@@ -156,15 +146,17 @@ int main(int argc, char **argv) {
 	
 	
 	
-	/**** STAGE 2: PIPE PIXELS ****/
+	/**** STAGE 2: WRITE VIDEO ****/
 	
 	capture = cvCreateFileCapture(argv[1]);	// Re-Open video file to start capture
 	if(!capture) {
 		printf("Error opening video file! (cvCreateFileCapture)\n");
 		return EXIT_FAILURE;
 	}
-
-	fprintf(fp,"Start writing frames...\n\n");
+	
+	CvVideoWriter *writer = cvCreateVideoWriter(argv[2],CV_FOURCC('X','2','6','5'),fps,size,1);
+	
+	printf("Start writing frames...\n\n");
 	
 	start = clock(); // Start timer
 
@@ -177,18 +169,20 @@ int main(int argc, char **argv) {
 		// If the index number of the current frame is equal to the frame we want, then write it to the stream.
 		if(frame == list_of_frames[frame]) {
 			cvCopy(bgr_frame,new_frame,NULL);	// Save the copy
-			fwrite(new_frame->imageData, sizeof(unsigned char), new_frame->imageSize, stdout); // Pipe image data to stdout
+			cvWriteFrame(writer, new_frame);	// Write frame to video stream
 		} else {
-			fwrite(new_frame->imageData, sizeof(unsigned char), new_frame->imageSize, stdout); // Pipe image data to stdout
+			cvWriteFrame(writer, new_frame);	// Write frame to video stream
 		}
+		
+		printf("Writing frame %d...\r",frame);
+		fflush(stdout); // For '/r' to work we have to flush the output stream
 	} while((bgr_frame=cvQueryFrame(capture)) != NULL);
 		
 	stop = clock(); 		// Stop timer
 	diff = stop - start;	// Get difference between start time and current time;
-	fprintf(fp,"\n\nTotal time writing frames : %f minutes\t%f seconds\n", (((float)diff)/CLOCKS_PER_SEC)/60, ((float)diff)/CLOCKS_PER_SEC);
-	fprintf(fp,"Writing completed!\n\n");
+	printf("\n\nTotal time writing frames : %f minutes\t%f seconds\n", (((float)diff)/CLOCKS_PER_SEC)/60, ((float)diff)/CLOCKS_PER_SEC);
+	printf("Writing completed!\n\n");
 
-	fclose(fp);					// Close file pointer
 	free(list_of_frames);		// Free list_of_frames
 	free(check_frames);			// Free check_frames
 	free(ecr);					// Free ecr

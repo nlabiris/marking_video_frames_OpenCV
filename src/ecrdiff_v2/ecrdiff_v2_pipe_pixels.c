@@ -11,7 +11,6 @@
 #include "video_algorithms.h"
 
 int main(int argc, char **argv) {
-	double ecr_max=0.0;
 	int i,index=0;
 	int width_img=0;	// Frame width
 	int height_img=0;	// Frame height
@@ -94,7 +93,7 @@ int main(int argc, char **argv) {
 		cvCopy(bgr_frame,current_frame,NULL);											// Save the copy
 		
 		/**** START PROCESSING ****/
-		ecrdiff_v1(current_frame, previous_frame, size, frame, ecr, &ecr_max);
+		ecrdiff_v2(current_frame, previous_frame, size, frame, fp, &index);
 		/**** END PROCESSING ****/
 
 		cvReleaseImage(&previous_frame);		// Release previous frame
@@ -116,22 +115,6 @@ int main(int argc, char **argv) {
 	cvReleaseImage(&bgr_frame);			// Release bgr_frame
 	cvReleaseImage(&previous_frame);	// Release previous_frame
 	cvReleaseCapture(&capture);			// Release capture
-
-	capture = cvCreateFileCapture(argv[1]);		// Re-Open video file to start capture
-	if(!capture) {
-		printf("Error opening video file! (cvCreateFileCapture)\n");
-		return EXIT_FAILURE;
-	}
-
-	do {
-		frame = cvGetCaptureProperty(capture,CV_CAP_PROP_POS_FRAMES);	// Get the current frame number
-		mark_frames(frame, fp, &index, ecr, &ecr_max);
-
-		// It means that the specific frame is marked
-		if(index==1) {
-			check_frames[frame]=1;
-		}
-	} while((bgr_frame=cvQueryFrame(capture)) != NULL);
 
 	fprintf(fp,"\n\n\n\nMarked frames\n\n");
 

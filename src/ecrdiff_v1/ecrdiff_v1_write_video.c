@@ -12,9 +12,6 @@
 #include "video_algorithms.h"
 
 int main(int argc, char **argv) {
-	int p[3];
-	char buffer[20];
-	int ci=1;							// Counter
 	double ecr_max=0.0;
 	int i,index=0;
 	int width_img=0;	// Frame width

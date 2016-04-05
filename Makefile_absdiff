@@ -1,0 +1,42 @@
+# This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+# (http://creativecommons.org/licenses/by-nc-sa/4.0/)
+#
+# ------------------------------------------------------------------------
+#
+# This Makefile compiles the source code for the 'absdiff' algorithm only
+# The Makefile_absdiff is called from a generic makefile so you may not use this makefile directly
+
+CFLAGS=`pkg-config --cflags opencv` -Wall -I include
+LIBS=`pkg-config --libs opencv`
+ABSDIFF_EXPORT_IMAGES_TARGET=bin/absdiff/absdiff_export_images
+ABSDIFF_PIPE_PIXELS_TARGET=bin/absdiff/absdiff_pipe_pixels
+ABSDIFF_WRITE_VIDEO_TARGET=bin/absdiff/absdiff_write_video
+.PHONY: all clean
+
+# Make executables for all targets
+all: $(ABSDIFF_EXPORT_IMAGES_TARGET) $(ABSDIFF_PIPE_PIXELS_TARGET) $(ABSDIFF_WRITE_VIDEO_TARGET)
+
+# Absolute differences algorithm
+$(ABSDIFF_EXPORT_IMAGES_TARGET): src/absdiff/absdiff_export_images.o src/video_algorithms.o
+	$(CC) $(CFLAGS) $(LIBS) $^ -o $@
+absdiff_export_images.o: src/absdiff/absdiff_export_images.c src/video_algorithms.c include/video_algorithms.h
+	$(CC) $(CFLAGS) $(LIBS) -c $<
+	
+$(ABSDIFF_PIPE_PIXELS_TARGET): src/absdiff/absdiff_pipe_pixels.o src/video_algorithms.o
+	$(CC) $(CFLAGS) $(LIBS) $^ -o $@
+absdiff_pipe_pixels.o: src/absdiff/absdiff_pipe_pixels.c src/video_algorithms.c include/video_algorithms.h
+	$(CC) $(CFLAGS) $(LIBS) -c $<
+
+$(ABSDIFF_WRITE_VIDEO_TARGET): src/absdiff/absdiff_write_video.o src/video_algorithms.o
+	$(CC) $(CFLAGS) $(LIBS) $^ -o $@
+absdiff_write_video.o: src/absdiff/absdiff_write_video.c src/video_algorithms.c include/video_algorithms.h
+	$(CC) $(CFLAGS) $(LIBS) -c $<
+
+# Video algorithms
+video_algorithms.o: src/video_algorithms.c include/video_algorithms.h
+	$(CC) $(CFLAGS) $(LIBS) -c $<
+
+# Clean object files
+clean:
+	rm src/*.o
+	rm src/absdiff/*.o
