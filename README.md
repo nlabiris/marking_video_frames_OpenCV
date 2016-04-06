@@ -34,7 +34,7 @@ For each algorithm there is a set of executables
 3. `<algorithm_name>_write_video`: Write marked frames in a video files using OpenCV. The resulting video includes only marked frames and has the duration of the original video.
 
 1. `./<algorithm_name>_export_images <input_video_file> <output_TXT_file>`
-2  `./<algorithm_name>_pipe_pixels <input_video_file> <output_TXT_file>`
+2. `./<algorithm_name>_pipe_pixels <input_video_file> <output_TXT_file>`
 3. `./<algorithm_name>_write_video <input_video_file> <output_video_file> <output_TXT_file>`
 
 > The `<output_TXT_file>` contains the results of the execution of the algorithm, i.e. marked frames, video stats etc.
