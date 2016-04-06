@@ -17,7 +17,7 @@
 # Makefile_ecrdiff_v1
 # Makefile_ecrdiff_v2
 
-.PHONY: all clean absdiff comprdiff ecrdiff_v1 ecrdiff_v2
+.PHONY: all clean help absdiff comprdiff ecrdiff_v1 ecrdiff_v2
 
 all:
 	@echo "\033[1;32mStarting compilation...\033[0m"
@@ -69,3 +69,9 @@ clean:
 	rm -f src/ecrdiff_v2/*.o
 	rm -f src/histdiff/*.o
 	@echo "\033[1;32mDone.\033[0m"
+	
+help:
+	@echo "Usage: make all                 # compile all algorithms"
+	@echo "       make <algorithm_name>    # compile the source code"
+	@echo "                                # for a specific algorithm"
+	@echo "       make clean               # delete any object files"
