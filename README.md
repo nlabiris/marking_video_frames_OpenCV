@@ -8,6 +8,8 @@ Here you can download the [text](https://github.com/nlabiris/marking_video_frame
 
 ### Compile
 
+Requirements: Opencv library
+
 You can use the `Makefile` in order to compile all the algorithms at once
 
 ```shell
@@ -39,6 +41,10 @@ For each algorithm there is a set of executables
 
 > The `<output_TXT_file>` contains the results of the execution of the algorithm, i.e. marked frames, video stats etc.
 
+
+##Platforms
+- Linux
+- Windows
 
 ### License
 
