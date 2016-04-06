@@ -76,6 +76,7 @@ int main(int argc, char **argv) {
 	start = clock(); // Start timer
 
 	bgr_frame=cvQueryFrame(capture);												// Grab first frame
+	current_frame = cvCreateImage(size, bgr_frame->depth, bgr_frame->nChannels);	// Create the current frame
 	previous_frame = cvCreateImage(size, bgr_frame->depth, bgr_frame->nChannels);	// Create the previous frame
 	cvCopy(bgr_frame,previous_frame,NULL);											// Save the copy
 	
@@ -86,25 +87,23 @@ int main(int argc, char **argv) {
 		 */
 		frame = cvGetCaptureProperty(capture,CV_CAP_PROP_POS_FRAMES);					// Get the current frame number
 		
-		current_frame = cvCreateImage(size, bgr_frame->depth, bgr_frame->nChannels);	// Create the current frame
 		cvCopy(bgr_frame,current_frame,NULL);											// Save the copy
-		new_frame = cvCreateImage(size, bgr_frame->depth, bgr_frame->nChannels);		// Create the new frame	
 		
 		/**** START PROCESSING ****/
-		absdiff(previous_frame, current_frame, new_frame, frame, fp, width_img, height_img, &index);
+		absdiff(previous_frame, current_frame, frame, fp, width_img, height_img, &index);
 		/**** END PROCESSING ****/
 
-		cvReleaseImage(&previous_frame);		// Release previous frame
-		previous_frame = cvCreateImage(size, bgr_frame->depth, bgr_frame->nChannels);	// Create the previous frame
 		cvCopy(bgr_frame,previous_frame,NULL);	// Save the copy
 
-		cvReleaseImage(&current_frame);			// Release current_frame
-		cvReleaseImage(&new_frame);				// Release new_frame
-		
 		if(index==1) {
 			check_frames[frame]=1;	// It means that the specific frame is marked
 		}
 	}
+	
+	cvReleaseImage(&bgr_frame);			// Release bgr_frame
+	cvReleaseImage(&previous_frame);	// Release previous_frame
+	cvReleaseImage(&current_frame);			// Release current_frame
+	cvReleaseCapture(&capture);			// Release capture
 	
 	stop = clock();			// Stop timer
 	diff = stop - start;	// Get difference between start time and current time;
@@ -122,10 +121,6 @@ int main(int argc, char **argv) {
 	
 	fprintf(fp,"\n\nTotal marked frames\t:\t%d\n",marked_frames);
 	
-	cvReleaseImage(&bgr_frame);			// Release bgr_frame
-	cvReleaseImage(&previous_frame);	// Release previous_frame
-	cvReleaseCapture(&capture);			// Release capture
-
 	//If there is no markeed frames, exit
 	if(marked_frames == 0) {
 		return EXIT_SUCCESS;

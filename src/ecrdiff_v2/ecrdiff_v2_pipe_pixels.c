@@ -80,6 +80,7 @@ int main(int argc, char **argv) {
 	
 	bgr_frame=cvQueryFrame(capture);												// Grab first frame
 	previous_frame = cvCreateImage(size, bgr_frame->depth, bgr_frame->nChannels);	// Create the previous frame
+	current_frame = cvCreateImage(size, bgr_frame->depth, bgr_frame->nChannels);	// Create the current frame
 	cvCopy(bgr_frame,previous_frame,NULL);											// Save the copy
 	
 	// Grab frames from the video until NULL
@@ -89,33 +90,29 @@ int main(int argc, char **argv) {
 		 */
 		frame = cvGetCaptureProperty(capture,CV_CAP_PROP_POS_FRAMES);					// Get the current frame number
 		
-		current_frame = cvCreateImage(size, bgr_frame->depth, bgr_frame->nChannels);	// Create the current frame
 		cvCopy(bgr_frame,current_frame,NULL);											// Save the copy
 		
 		/**** START PROCESSING ****/
 		ecrdiff_v2(current_frame, previous_frame, size, frame, fp, &index);
 		/**** END PROCESSING ****/
 
-		cvReleaseImage(&previous_frame);		// Release previous frame
-		previous_frame = cvCreateImage(size, bgr_frame->depth, bgr_frame->nChannels);	// Create the previous frame
 		cvCopy(bgr_frame,previous_frame,NULL);	// Save the copy
-
-		cvReleaseImage(&current_frame);			// Release current_frame
 		
 		if(index==1) {
 			check_frames[frame]=1;	// It means that the specific frame is marked
 		}
 	}
 	
+	cvReleaseImage(&bgr_frame);			// Release bgr_frame
+	cvReleaseImage(&previous_frame);	// Release previous_frame
+	cvReleaseImage(&current_frame);		// Release current_frame
+	cvReleaseCapture(&capture);			// Release capture
+	
 	stop = clock();			// Stop timer
 	diff = stop - start;	// Get difference between start time and current time;
 	fprintf(fp,"\n\nTotal time processing frames : %f minutes\t%f seconds\n", (((float)diff)/CLOCKS_PER_SEC)/60, ((float)diff)/CLOCKS_PER_SEC);
 	fprintf(fp,"Processing completed!\n");
 	
-	cvReleaseImage(&bgr_frame);			// Release bgr_frame
-	cvReleaseImage(&previous_frame);	// Release previous_frame
-	cvReleaseCapture(&capture);			// Release capture
-
 	fprintf(fp,"\n\n\n\nMarked frames\n\n");
 
 	for(i=0;i<total_frames;i++)	{

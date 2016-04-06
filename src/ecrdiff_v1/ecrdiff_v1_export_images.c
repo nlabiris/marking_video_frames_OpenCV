@@ -85,6 +85,7 @@ int main(int argc, char **argv) {
 	start = clock(); // Start timer
 	
 	bgr_frame=cvQueryFrame(capture);												// Grab first frame
+	current_frame = cvCreateImage(size, bgr_frame->depth, bgr_frame->nChannels);	// Create the current frame
 	previous_frame = cvCreateImage(size, bgr_frame->depth, bgr_frame->nChannels);	// Create the previous frame
 	cvCopy(bgr_frame,previous_frame,NULL);											// Save the copy
 	
@@ -94,20 +95,15 @@ int main(int argc, char **argv) {
 		 * so the frame counter starts from 2
 		 */
 		frame = cvGetCaptureProperty(capture,CV_CAP_PROP_POS_FRAMES);					// Get the current frame number
-		
-		current_frame = cvCreateImage(size, bgr_frame->depth, bgr_frame->nChannels);	// Create the current frame
+			
 		cvCopy(bgr_frame,current_frame,NULL);											// Save the copy
 		
 		/**** START PROCESSING ****/
 		ecrdiff_v1(current_frame, previous_frame, size, frame, ecr, &ecr_max);
 		/**** END PROCESSING ****/
 
-		cvReleaseImage(&previous_frame);		// Release previous frame
-		previous_frame = cvCreateImage(size, bgr_frame->depth, bgr_frame->nChannels);	// Create the previous frame
 		cvCopy(bgr_frame,previous_frame,NULL);	// Save the copy
 
-		cvReleaseImage(&current_frame);			// Release current_frame
-		
 		if(index==1) {
 			check_frames[frame]=1;	// It means that the specific frame is marked
 		}
@@ -115,34 +111,36 @@ int main(int argc, char **argv) {
 		printf("Processing frame %d...\r",frame);
 		fflush(stdout);
 	}
+
+	cvReleaseImage(&bgr_frame);			// Release bgr_frame
+	cvReleaseImage(&previous_frame);	// Release previous_frame
+	cvReleaseImage(&current_frame);		// Release current_frame
+	cvReleaseCapture(&capture);			// Release capture
 	
 	stop = clock();			// Stop timer
 	diff = stop - start;	// Get difference between start time and current time;
 	printf("\n\nTotal time processing frames : %f minutes\t%f seconds\n", (((float)diff)/CLOCKS_PER_SEC)/60, ((float)diff)/CLOCKS_PER_SEC);
 	printf("Processing completed!\n");
-	
-	cvReleaseImage(&bgr_frame);			// Release bgr_frame
-	cvReleaseImage(&previous_frame);	// Release previous_frame
-	cvReleaseCapture(&capture);			// Release capture
-
-	fprintf(fp,"\n\n\n\nMarked frames\n\n");
-	printf("\n\n\n\nMarked frames\n\n");
-	
+		
 	capture = cvCreateFileCapture(argv[1]);		// Re-Open video file to start capture
 	if(!capture) {
 		printf("Error opening video file! (cvCreateFileCapture)\n");
 		return EXIT_FAILURE;
 	}
 
-	do {
+	// Mark frames
+	while((bgr_frame=cvQueryFrame(capture)) != NULL) {
 		frame = cvGetCaptureProperty(capture,CV_CAP_PROP_POS_FRAMES);	// Get the current frame number
+		
 		mark_frames(frame, fp, &index, ecr, &ecr_max);
 
 		// It means that the specific frame is marked
 		if(index==1) {
 			check_frames[frame]=1;
 		}
-	} while((bgr_frame=cvQueryFrame(capture)) != NULL);
+	}
+	cvReleaseImage(&bgr_frame);	// Release bgr_frame
+	cvReleaseCapture(&capture);	// Release capture
 
 	fprintf(fp,"\n\n\n\nMarked frames\n\n");
 	printf("\n\n\n\nMarked frames\n\n");
@@ -159,10 +157,6 @@ int main(int argc, char **argv) {
 	fprintf(fp,"\n\nTotal marked frames\t:\t%d\n",marked_frames);
 	printf("\n\nTotal marked frames\t:\t%d\n\n",marked_frames);
 
-	fclose(fp);	// Close file pointer
-	cvReleaseImage(&bgr_frame);			// Release bgr_frame
-	cvReleaseCapture(&capture);	// Release capture
-	
 	//If there is no markeed frames, exit
 	if(marked_frames == 0) {
 		return EXIT_SUCCESS;
@@ -215,6 +209,7 @@ int main(int argc, char **argv) {
 	printf("\n\nTotal time writing frames : %f minutes\t%f seconds\n", (((float)diff)/CLOCKS_PER_SEC)/60, ((float)diff)/CLOCKS_PER_SEC);
 	printf("Writing completed!\n\n");
 
+	fclose(fp);					// Close file pointer
 	free(list_of_frames);		// Free list_of_frames
 	free(check_frames);			// Free check_frames
 	free(ecr);					// Free ecr
