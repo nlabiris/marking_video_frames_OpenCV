@@ -75,3 +75,4 @@ help:
 	@echo "       make <algorithm_name>    # compile the source code"
 	@echo "                                # for a specific algorithm"
 	@echo "       make clean               # delete any object files"
+	@echo "       make help                # Print this help message
