@@ -6,16 +6,16 @@
 #include "highgui.h"
 #include "video_algorithms.h"
 
-void absdiff(IplImage *previous_frame, IplImage *current_frame, int frame, FILE *fp, int width_img, int height_img, int *index_call) {
+void absdiff(IplImage *previous_frame, IplImage *current_frame, int frame, FILE *fp, int width_img, int height_img, int *index_call, int threshold) {
 	int i,j;
 	unsigned char *pinput_previous;	// Previous frame imageData (input)
 	unsigned char *pinput_current;		// Current frame imageData (input)
-	int sum0=0;									// Sum of pixels (B)
-	int sum1=0;									// Sum of pixels (G)
-	int sum2=0;									// Sum of pixels (R)
-	double similarity0=0.0;					// Similarity (B)
-	double similarity1=0.0;					// Similarity (G)
-	double similarity2=0.0;					// Similarity (R)
+	int sumB=0;									// Sum of pixels (B)
+	int sumG=0;									// Sum of pixels (G)
+	int sumR=0;									// Sum of pixels (R)
+	double similarityB=0.0;					// Similarity (B)
+	double similarityG=0.0;					// Similarity (G)
+	double similarityR=0.0;					// Similarity (R)
 
 
 	pinput_current = (unsigned char*)current_frame->imageData;		// Assign imageData to current array (input)
@@ -23,39 +23,39 @@ void absdiff(IplImage *previous_frame, IplImage *current_frame, int frame, FILE 
 
 	for(i=0;i<height_img;i++) {
 		for(j=0;j<width_img;j++) {
-			sum0=sum0+abs(pinput_current[i*current_frame->widthStep+j*current_frame->nChannels+0]-pinput_previous[i*previous_frame->widthStep+j*previous_frame->nChannels+0]); // B
-			sum1=sum1+abs(pinput_current[i*current_frame->widthStep+j*current_frame->nChannels+1]-pinput_previous[i*previous_frame->widthStep+j*previous_frame->nChannels+1]); // G
-			sum2=sum2+abs(pinput_current[i*current_frame->widthStep+j*current_frame->nChannels+2]-pinput_previous[i*previous_frame->widthStep+j*previous_frame->nChannels+2]); // R
+			sumB=sumB+abs(pinput_current[i*current_frame->widthStep+j*current_frame->nChannels+0]-pinput_previous[i*previous_frame->widthStep+j*previous_frame->nChannels+0]); // B
+			sumG=sumG+abs(pinput_current[i*current_frame->widthStep+j*current_frame->nChannels+1]-pinput_previous[i*previous_frame->widthStep+j*previous_frame->nChannels+1]); // G
+			sumR=sumR+abs(pinput_current[i*current_frame->widthStep+j*current_frame->nChannels+2]-pinput_previous[i*previous_frame->widthStep+j*previous_frame->nChannels+2]); // R
 		}
 	}
 	
-	similarity0=100-(sum0/((double)(width_img*height_img))/2.55); // Similarity calculation (B)
-	similarity1=100-(sum1/((double)(width_img*height_img))/2.55); // Similarity calculation (G)
-	similarity2=100-(sum2/((double)(width_img*height_img))/2.55); // Similarity calculation (R)
+	similarityB=100-(sumB/((double)(width_img*height_img))/2.55); // Similarity calculation (B)
+	similarityG=100-(sumG/((double)(width_img*height_img))/2.55); // Similarity calculation (G)
+	similarityR=100-(sumR/((double)(width_img*height_img))/2.55); // Similarity calculation (R)
 
 	// Threshold to mark frames we want
 	// If similarity in any of the 3 channels (RGB) is < 95% then the frame is marked
-	if(similarity0 < 90 || similarity1 < 90 || similarity2 < 90) {
+	if(similarityB < threshold || similarityG < threshold || similarityR < threshold) {
 		*index_call=1;
 		if(frame<10) {
-			fprintf(fp,"marked\tframe 0%d\t\tsum_B = %d\tsum_G = %d\tsum_R = %d\t\tsimilarity_B = %.4f\tsimilarity_G = %.4f\tsimilarity_R = %.4f\n",frame,sum0,sum1,sum2,similarity0,similarity1,similarity2);
+			fprintf(fp,"marked\tframe 0%d\t\tsum_B = %d\tsum_G = %d\tsum_R = %d\t\tsimilarity_B = %.4f\tsimilarity_G = %.4f\tsimilarity_R = %.4f\n",frame,sumB,sumG,sumR,similarityB,similarityG,similarityR);
 		} else {
-			fprintf(fp,"marked\tframe %d\t\tsum_B = %d\tsum_G = %d\tsum_R = %d\t\tsimilarity_B = %.4f\tsimilarity_G = %.4f\tsimilarity_R = %.4f\n",frame,sum0,sum1,sum2,similarity0,similarity1,similarity2);
+			fprintf(fp,"marked\tframe %d\t\tsum_B = %d\tsum_G = %d\tsum_R = %d\t\tsimilarity_B = %.4f\tsimilarity_G = %.4f\tsimilarity_R = %.4f\n",frame,sumB,sumG,sumR,similarityB,similarityG,similarityR);
 		}
 	} else {
 		*index_call=0;
 		if(frame<10) {
-			fprintf(fp,"\tframe 0%d\t\tsum_B = %d\tsum_G = %d\tsum_R = %d\t\tsimilarity_B = %.4f\tsimilarity_G = %.4f\tsimilarity_R = %.4f\n",frame,sum0,sum1,sum2,similarity0,similarity1,similarity2);
+			fprintf(fp,"\tframe 0%d\t\tsum_B = %d\tsum_G = %d\tsum_R = %d\t\tsimilarity_B = %.4f\tsimilarity_G = %.4f\tsimilarity_R = %.4f\n",frame,sumB,sumG,sumR,similarityB,similarityG,similarityR);
 		} else {
-			fprintf(fp,"\tframe %d\t\tsum_B = %d\tsum_G = %d\tsum_R = %d\t\tsimilarity_B = %.4f\tsimilarity_G = %.4f\tsimilarity_R = %.4f\n",frame,sum0,sum1,sum2,similarity0,similarity1,similarity2);
+			fprintf(fp,"\tframe %d\t\tsum_B = %d\tsum_G = %d\tsum_R = %d\t\tsimilarity_B = %.4f\tsimilarity_G = %.4f\tsimilarity_R = %.4f\n",frame,sumB,sumG,sumR,similarityB,similarityG,similarityR);
 		}
 	}
 }
 
-void comprdiff(IplImage *decoded_previous, IplImage *decoded_current, int frame, FILE *fp, int width_img, int height_img, int *index_call) {
+void comprdiff(IplImage *decoded_previous, IplImage *decoded_current, int frame, FILE *fp, int width_img, int height_img, int *index_call, double parameter) {
 	unsigned int encoded_diff=0;	// Compression difference between frames
 	double threshold=0.0;			// Threshold
-	double parameter=0.005;			// Percentage of the whole frame
+	//double parameter=0.005;			// Percentage of the whole frame
 	CvMat *encoded_previous;		// Previous frame (encoded)
 	CvMat *encoded_current;			// Current frame (encoded)
 

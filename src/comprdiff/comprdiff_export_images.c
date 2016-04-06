@@ -11,6 +11,7 @@
 #include "video_algorithms.h"
 
 int main(int argc, char **argv) {
+	double parameter=0.005;		// Percentage of the whole frame
 	int p[3];
 	char buffer[20];
 	int ci=1;							// Counter
@@ -95,7 +96,7 @@ int main(int argc, char **argv) {
 		cvCopy(bgr_frame,decoded_current,NULL);											// Save the copy
 		
 		/**** START PROCESSING ****/
-		comprdiff(decoded_previous, decoded_current, frame, fp, width_img, height_img, &index);
+		comprdiff(decoded_previous, decoded_current, frame, fp, width_img, height_img, &index, parameter);
 		/**** END PROCESSING ****/
 
 		cvCopy(bgr_frame,decoded_previous,NULL);	// Save the copy

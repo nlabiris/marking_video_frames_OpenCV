@@ -11,6 +11,7 @@
 #include "video_algorithms.h"
 
 int main(int argc, char **argv) {
+	int threshold=90;			// Threshold to mark frames we want
 	int i=0,index=0;
 	int width_img=0;			// Frame width
 	int height_img=0;			// Frame height
@@ -90,7 +91,7 @@ int main(int argc, char **argv) {
 		cvCopy(bgr_frame,current_frame,NULL);											// Save the copy
 		
 		/**** START PROCESSING ****/
-		absdiff(previous_frame, current_frame, frame, fp, width_img, height_img, &index);
+		absdiff(previous_frame, current_frame, frame, fp, width_img, height_img, &index, threshold);
 		/**** END PROCESSING ****/
 
 		cvCopy(bgr_frame,previous_frame,NULL);	// Save the copy
