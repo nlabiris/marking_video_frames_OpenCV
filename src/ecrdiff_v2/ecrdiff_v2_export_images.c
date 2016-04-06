@@ -1,6 +1,5 @@
 // argv[1]: input video file
-// argv[2]: output video file
-// argv[3]: output TXT file
+// argv[2]: output TXT file
 
 
 #include <stdio.h>
@@ -35,8 +34,8 @@ int main(int argc, char **argv) {
 	clock_t start, stop, diff; // Timer
 		
 	// Check if the user gave arguments
-	if(argc != 4) {
-		fprintf(stderr, "\nUSAGE: %s <input_video_file> <output_video_file> <output_TXT_file>\n", argv[0]);
+	if(argc != 3) {
+		fprintf(stderr, "\nUSAGE: %s <input_video_file> <output_TXT_file>\n", argv[0]);
 		return EXIT_FAILURE;
 	}
 
@@ -50,7 +49,7 @@ int main(int argc, char **argv) {
 		return EXIT_FAILURE;
 	}
 
-	fp=fopen(argv[3],"w");		// Open file to write stats
+	fp=fopen(argv[2],"w");		// Open file to write stats
 	if(fp == NULL) {
 		printf("Error opening file! (fopen)\n");
 		return EXIT_FAILURE;

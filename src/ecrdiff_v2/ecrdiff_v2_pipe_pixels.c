@@ -122,7 +122,6 @@ int main(int argc, char **argv) {
 		if(check_frames[i]==1) {
 			list_of_frames[i]=i;
 			fprintf(fp,"frame %d\n",i);	// Write to file only marked frames
-			printf("frame %d\n",i);	// Write to file only marked frames
 			marked_frames++;
 		}
 	}

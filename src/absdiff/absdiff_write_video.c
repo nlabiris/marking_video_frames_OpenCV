@@ -153,7 +153,7 @@ int main(int argc, char **argv) {
 		return EXIT_FAILURE;
 	}
 
-	CvVideoWriter *writer = cvCreateVideoWriter(argv[2],CV_FOURCC('A','V','C','1'),fps,size,1);
+	CvVideoWriter *writer = cvCreateVideoWriter(argv[2],CV_FOURCC('F','M','P','4'),fps,size,1);
 
 	printf("Start writing frames...\n\n");
 	

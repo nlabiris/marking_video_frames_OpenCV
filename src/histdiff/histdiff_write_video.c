@@ -89,6 +89,7 @@ int main(int argc, char **argv) {
 		 */
 		frame = cvGetCaptureProperty(capture,CV_CAP_PROP_POS_FRAMES);					// Get the current frame number
 		
+		new_frame = cvCreateImage(size, bgr_frame->depth, bgr_frame->nChannels);	// Create the new frame
 		current_frame = cvCreateImage(size, bgr_frame->depth, bgr_frame->nChannels);	// Create the current frame
 		cvCopy(bgr_frame,current_frame,NULL);											// Save the copy
 		
@@ -101,6 +102,7 @@ int main(int argc, char **argv) {
 		cvCopy(bgr_frame,previous_frame,NULL);	// Save the copy
 
 		cvReleaseImage(&current_frame);			// Release current_frame
+		cvReleaseImage(&current_frame);			// Release new_frame
 		
 		if(index==1) {
 			check_frames[frame]=1;	// It means that the specific frame is marked
@@ -149,7 +151,7 @@ int main(int argc, char **argv) {
 		return EXIT_FAILURE;
 	}
 	
-	CvVideoWriter *writer = cvCreateVideoWriter(argv[2],CV_FOURCC('X','2','6','5'),fps,size,1);
+	CvVideoWriter *writer = cvCreateVideoWriter(argv[2],CV_FOURCC('F','M','P','4'),fps,size,1);
 	
 	printf("Start writing frames...\n\n");
 	
