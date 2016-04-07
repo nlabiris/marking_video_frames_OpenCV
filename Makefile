@@ -71,8 +71,8 @@ clean:
 	@echo "\033[1;32mDone.\033[0m"
 	
 help:
-	@echo "Usage: make all                 # compile all algorithms"
-	@echo "       make <algorithm_name>    # compile the source code"
+	@echo "Usage: make all                 # Compile all algorithms"
+	@echo "       make <algorithm_name>    # Compile the source code"
 	@echo "                                # for a specific algorithm"
-	@echo "       make clean               # delete any object files"
-	@echo "       make help                # Print this help message
+	@echo "       make clean               # Delete any object files"
+	@echo "       make help                # Print this help message"

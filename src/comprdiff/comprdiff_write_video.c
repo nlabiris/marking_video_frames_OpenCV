@@ -32,8 +32,8 @@ int main(int argc, char **argv) {
 	clock_t start, stop, diff; // Timer
 
 	// Check if the user gave arguments
-	if(argc != 4) {
-		fprintf(stderr, "\nUSAGE: %s <input_video_file> <output_video_file> <output_TXT_file>\n", argv[0]);
+	if(argc != 5) {
+		fprintf(stderr, "\nUSAGE: %s <input_video_file> <output_video_file> <output_TXT_file> <parameter>\n", argv[0]);
 		return EXIT_FAILURE;
 	}
 
@@ -52,6 +52,8 @@ int main(int argc, char **argv) {
 		printf("Error opening file! (fopen)\n");
 		return EXIT_FAILURE;
 	}
+	
+	parameter = atof(argv[4]);	// Percentage of the whole frame
 
 	fps = cvGetCaptureProperty(capture,CV_CAP_PROP_FPS);					// Get FPS
 	width_img = cvGetCaptureProperty(capture,CV_CAP_PROP_FRAME_WIDTH);		// Get frame width
