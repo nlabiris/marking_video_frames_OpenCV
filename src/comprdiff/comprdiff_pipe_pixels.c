@@ -14,6 +14,7 @@ int main(int argc, char **argv) {
 	double parameter=0.005;		// Percentage of the whole frame
 	int i=0,index=0;
 	int frame=0;				// Frame number (index)
+	int msec;
 	int total_frames=0;			// Total frames
 	int width_img=0;			// Frame width
 	int height_img=0;			// Frame height
@@ -29,6 +30,16 @@ int main(int argc, char **argv) {
 	IplImage *new_frame;			// Frame
 	CvSize size;				// Frame size (width x height)
 	clock_t start, stop, diff; // Timer
+	
+	// Text variables
+	CvScalar black = CV_RGB(255,0,0);
+	CvFont font1;
+	int thickness = 2.0;
+	char text1[20] = "0"; // frame number
+	char text2[20] = "0"; // frame msec positiion
+	double hscale = 1.0;
+	double vscale = 1.0;
+	double shear = 0.0;
 
 	// Check if the user gave arguments
 	if(argc != 4) {
@@ -72,6 +83,11 @@ int main(int argc, char **argv) {
 		check_frames[i]=0;
 		list_of_frames[i]=0;
 	}
+	
+	cvInitFont(&font1,CV_FONT_HERSHEY_SIMPLEX,hscale,vscale,shear,thickness,CV_AA);
+	
+	CvPoint pt1 = cvPoint(5,30);
+	CvPoint pt2 = cvPoint(5,70);
 	
 	fprintf(fp,"Filename\t:\t%s\n\nFrame width\t:\t%d\nFrame height\t:\t%d\nFPS\t\t:\t%f\nTotal frames\t:\t%d\n\n\n\n",argv[1],width_img,height_img,fps,total_frames);
 	fprintf(fp,"Start processing frames...\n\n");
@@ -148,10 +164,19 @@ int main(int argc, char **argv) {
 	
 	do {
 		frame = cvGetCaptureProperty(capture,CV_CAP_PROP_POS_FRAMES);	// Get the current frame number
+		msec = cvGetCaptureProperty(capture,CV_CAP_PROP_POS_MSEC);
+		msec=msec/1000;
 		
 		// If the index number of the current frame is equal to the frame we want, then write it to the stream.
 		if(frame == list_of_frames[frame]) {
 			cvCopy(bgr_frame,new_frame,NULL);	// Save the copy
+
+			sprintf(text1,"%d frame",frame); // int to char via sprintf()
+			cvPutText(new_frame,text1,pt1,&font1,black); // frame number
+
+			sprintf(text2,"%d sec",msec); // int to char via sprintf()
+			cvPutText(new_frame,text2,pt2,&font1,black); // frame msec position
+
 			fwrite(new_frame->imageData, sizeof(unsigned char), new_frame->imageSize, stdout); // Pipe image data to stdout
 		} else {
 			fwrite(new_frame->imageData, sizeof(unsigned char), new_frame->imageSize, stdout); // Pipe image data to stdout
